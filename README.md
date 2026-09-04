@@ -38,6 +38,38 @@ The Part 1 planning and database documents are available in the `docs` folder:
 ## GitHub Actions / CI/CD
 
 A GitHub Actions workflow is configured to validate the Part 1 repository structure and confirm that the required documentation and SQL database script are present.
+## Repository Structure
+
+The RaceDay repository is organised into documentation, database, and CI/CD configuration areas.
+
+```text
+RaceDay/
+├── .github/
+│   └── workflows/
+│       └── part1-validation.yml
+│
+├── docs/
+│   ├── RaceDay_ERD.png
+│   ├── RaceDay API Endpoint Plan.pdf
+│   ├── RaceDay_Database.sql
+│   ├── RaceDay_CI_Green_Build.png
+│   ├── Database_Setup_Guide.md
+│   ├── Project_Structure_Guide.md
+│   ├── Database_Design_Decisions.md
+│   ├── Roles_and_Permissions_Guide.md
+│   └── Database_Verification_Queries.sql
+│
+└── README.md
+```
+
+### Key Areas
+
+* `.github/workflows/` contains the GitHub Actions configuration used to validate the Part 1 documentation.
+* `docs/` contains the RaceDay planning, database, verification, and supporting documentation.
+* `README.md` provides an overview of the RaceDay system, its roles, documentation, and CI/CD evidence.
+
+The repository uses a single structure so that the RaceDay project documentation and future application development can be maintained together.
+
 
 ### Successful CI/CD Build
 
