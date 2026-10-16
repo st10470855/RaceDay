@@ -1,0 +1,27 @@
+name: RaceDay Part 2 Build and Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Part2/RaceDay.Part2.sln
+
+      - name: Build solution
+        run: dotnet build Part2/RaceDay.Part2.sln --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test Part2/RaceDay.Part2.sln --configuration Release --no-build --verbosity normal
