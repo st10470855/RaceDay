@@ -1,3 +1,4 @@
+[![RaceDay Part 2 Build and Test](https://github.com/st10470855/RaceDay/actions/workflows/part2-build-and-test.yml/badge.svg)](https://github.com/st10470855/RaceDay/actions/workflows/part2-build-and-test.yml)
 # RaceDay
 
 ## System Description
