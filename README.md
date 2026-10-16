@@ -166,7 +166,7 @@ The automated test suite contains 12 tests, which passed in the latest local tes
 The demonstration presents the API functionality, including authentication, event management, categories, enrolments, results, and Swagger.
 
 ### Continuous Integration
-
+![Successful Part 2 GitHub Actions build and tests](docs/Part2_CI_Green_Build.png)
 GitHub Actions automatically restores dependencies, builds the Part 2 solution, and runs the automated tests on pushes and pull requests.
 
 - [Part 2 GitHub Actions Workflow](https://github.com/st10470855/RaceDay/actions/workflows/part2-build-and-test.yml)
