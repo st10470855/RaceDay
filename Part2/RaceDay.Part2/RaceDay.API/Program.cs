@@ -6,6 +6,27 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services
+    .AddAuthentication("Session")
+    .AddScheme<
+        Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions,
+        RaceDay.API.Authentication.SessionAuthenticationHandler>(
+        "Session", options => { });
+
+builder.Services.AddAuthorization();
+builder.Services.AddScoped<
+    Microsoft.AspNetCore.Identity.IPasswordHasher<RaceDay.API.Models.User>,
+    Microsoft.AspNetCore.Identity.PasswordHasher<RaceDay.API.Models.User>>();
+
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddDbContext<RaceDayDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("RaceDayConnection")));
@@ -24,6 +45,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseSession();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
