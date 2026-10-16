@@ -39,4 +39,25 @@ public class AuthenticationTests
             HttpStatusCode.Unauthorized,
             response.StatusCode);
     }
+
+
+    [Fact]
+    public async Task Register_WithMissingRequiredFields_ReturnsBadRequest()
+    {
+        // Arrange
+        var content = new StringContent(
+            "{}",
+            System.Text.Encoding.UTF8,
+            "application/json");
+
+        // Act
+        var response = await _client.PostAsync(
+            "/api/Auth/register", content);
+
+        // Assert
+        Assert.Equal(
+            HttpStatusCode.BadRequest,
+            response.StatusCode);
+    }
+
 }
