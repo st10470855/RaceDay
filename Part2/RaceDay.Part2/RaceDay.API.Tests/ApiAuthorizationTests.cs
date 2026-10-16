@@ -27,4 +27,25 @@ public class ApiAuthorizationTests
             HttpStatusCode.Unauthorized,
             response.StatusCode);
     }
+
+    [Fact]
+    public async Task MyResults_WithoutLogin_ReturnsUnauthorized()
+    {
+        // Act
+        var response = await _client.GetAsync("/api/Results/my");
+
+        // Assert
+        Assert.Equal(
+            HttpStatusCode.Unauthorized,
+            response.StatusCode);
+    }
+
+
+
+
+
+
+
+
+
 }
