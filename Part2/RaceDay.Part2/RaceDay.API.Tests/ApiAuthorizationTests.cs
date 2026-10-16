@@ -40,12 +40,21 @@ public class ApiAuthorizationTests
             response.StatusCode);
     }
 
+    [Fact]
+    public async Task CreateEnrolment_WithoutLogin_ReturnsUnauthorized()
+    {
+        // Act
+        var response = await _client.PostAsync(
+            "/api/Enrolments",
+            new StringContent(
+                "{}",
+                System.Text.Encoding.UTF8,
+                "application/json"));
 
-
-
-
-
-
-
+        // Assert
+        Assert.Equal(
+            HttpStatusCode.Unauthorized,
+            response.StatusCode);
+    }
 
 }
