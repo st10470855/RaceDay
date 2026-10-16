@@ -192,22 +192,51 @@ The completed work includes:
 
 The project is ready for Part 1 review and ARC submission.
 
-## Future Development
+## Part 2 — RESTful API Development
 
-### Part 2
+Part 2 implements the RaceDay RESTful API using C#, ASP.NET Core Web API, Entity Framework Core, and Microsoft SQL Server.
 
-Part 2 will implement the RaceDay API based on the planning completed in Part 1.
+### Implemented functionality
 
-The API will implement authentication, role-based access, user profiles, events, categories, event enrolments, and results.
+- **Authentication:** User registration, login, logout, session management, and password hashing.
+- **Role-based access:** Organiser and Participant roles with protected API endpoints.
+- **Profiles:** View and update the logged-in user's profile.
+- **Events:** View, create, update, and delete events, with organiser ownership checks.
+- **Categories:** View and manage event categories.
+- **Enrolments:** Participants can enrol in events and view their enrolments. Organisers can view enrolments for their events.
+- **Results:** Organisers can record race results, and participants can view their own results.
 
-### Part 3
+### Technologies
 
-Part 3 will implement the MVC application that consumes the RaceDay API.
+- C# and ASP.NET Core Web API
+- Entity Framework Core
+- Microsoft SQL Server
+- Swagger UI
+- xUnit automated tests
+- GitHub Actions
 
-The MVC application will provide appropriate interfaces for Organisers and Participants while reflecting the role permissions enforced by the API.
+### Run the API locally
 
-## Conclusion
+1. Install Visual Studio 2022 with the .NET 8 development workload and SQL Server LocalDB.
+2. Clone this repository.
+3. Open `Part2/RaceDay.Part2/RaceDay.Part2.sln` in Visual Studio.
+4. Confirm that the `RaceDayDB` database exists and contains the tables and role records from Part 1.
+5. Check the `RaceDayConnection` connection string in `appsettings.json` and adjust it if your SQL Server instance differs.
+6. Set `RaceDay.API` as the startup project and run it.
+7. Open the Swagger URL displayed by the application to inspect and test the API endpoints.
 
-RaceDay Part 1 establishes the database, API planning, documentation, version-control, and CI/CD foundation required for the later development stages.
+### Run the automated tests
 
-The repository contains the required planning documents and supporting evidence for the Part 1 submission.
+Open the solution in Visual Studio, open **Test Explorer**, and select **Run All Tests**. The repository also contains a GitHub Actions workflow that builds the solution and runs the tests on pushes and pull requests.
+
+### Part 2 demonstration video
+
+[Watch the RaceDay Part 2 API Demonstration](https://youtu.be/HboT0Z07kxw)
+
+### Continuous integration
+
+[View the Part 2 GitHub Actions workflow](https://github.com/st10470855/RaceDay/actions/workflows/part2-build-and-test.yml)
+
+### Part 3 — Future Development
+
+
