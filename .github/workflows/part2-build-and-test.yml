@@ -17,6 +17,9 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Show solution files
+        run: find . -name "*.sln" -o -name "*.slnx"
+
       - name: Restore dependencies
         run: dotnet restore Part2/RaceDay.Part2.sln
 
