@@ -1,76 +1,75 @@
 ﻿
 using System.Net;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
 namespace RaceDay.API.Tests;
 
 public class ApiAuthorizationTests
-    : IClassFixture<WebApplicationFactory<Program>>
+    : IClassFixture<RaceDayTestFactory>
 {
     private readonly HttpClient _client;
 
-    public ApiAuthorizationTests(
-        WebApplicationFactory<Program> factory)
+    public ApiAuthorizationTests(RaceDayTestFactory factory)
     {
         _client = factory.CreateClient();
     }
 
-    [Fact]
-    public async Task Profile_WithoutLogin_ReturnsUnauthorized()
+    private static async Task AssertUnauthorized(
+        HttpResponseMessage response)
     {
-        // Act
+        var body = await response.Content.ReadAsStringAsync();
+
+        Assert.True(
+            response.StatusCode == HttpStatusCode.Unauthorized,
+            $"Expected 401 Unauthorized, but received " +
+            $"{(int)response.StatusCode} ({response.StatusCode}). " +
+            $"Response: {body}");
+    }
+
+    [Fact]
+    public async Task GetMyProfile_WithoutSession_ReturnsUnauthorized()
+    {
+        // ProfileController uses GET /api/Profile
         var response = await _client.GetAsync("/api/Profile");
 
-        // Assert
-        Assert.Equal(
-            HttpStatusCode.Unauthorized,
-            response.StatusCode);
+        await AssertUnauthorized(response);
     }
 
     [Fact]
-    public async Task MyResults_WithoutLogin_ReturnsUnauthorized()
+    public async Task GetMyResults_WithoutSession_ReturnsUnauthorized()
     {
-        // Act
         var response = await _client.GetAsync("/api/Results/my");
 
-        // Assert
-        Assert.Equal(
-            HttpStatusCode.Unauthorized,
-            response.StatusCode);
+        await AssertUnauthorized(response);
     }
 
     [Fact]
-    public async Task CreateEnrolment_WithoutLogin_ReturnsUnauthorized()
+    public async Task CreateEnrolment_WithoutSession_ReturnsUnauthorized()
     {
-        // Act
+        var content = new StringContent(
+            "{}",
+            System.Text.Encoding.UTF8,
+            "application/json");
+
         var response = await _client.PostAsync(
             "/api/Enrolments",
-            new StringContent(
-                "{}",
-                System.Text.Encoding.UTF8,
-                "application/json"));
+            content);
 
-        // Assert
-        Assert.Equal(
-            HttpStatusCode.Unauthorized,
-            response.StatusCode);
+        await AssertUnauthorized(response);
     }
 
     [Fact]
-    public async Task RecordResult_WithoutLogin_ReturnsUnauthorized()
+    public async Task RecordResult_WithoutSession_ReturnsUnauthorized()
     {
-        // Act
+        var content = new StringContent(
+            "{}",
+            System.Text.Encoding.UTF8,
+            "application/json");
+
         var response = await _client.PostAsync(
             "/api/Results",
-            new StringContent(
-                "{}",
-                System.Text.Encoding.UTF8,
-                "application/json"));
+            content);
 
-        // Assert
-        Assert.Equal(
-            HttpStatusCode.Unauthorized,
-            response.StatusCode);
+        await AssertUnauthorized(response);
     }
 }

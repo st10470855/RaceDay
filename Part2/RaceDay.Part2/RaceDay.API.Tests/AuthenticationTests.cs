@@ -1,16 +1,15 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.Mvc.Testing;
+﻿
+using System.Net;
 using Xunit;
 
 namespace RaceDay.API.Tests;
 
 public class AuthenticationTests
-    : IClassFixture<WebApplicationFactory<Program>>
+    : IClassFixture<RaceDayTestFactory>
 {
     private readonly HttpClient _client;
 
-    public AuthenticationTests(
-        WebApplicationFactory<Program> factory)
+    public AuthenticationTests(RaceDayTestFactory factory)
     {
         _client = factory.CreateClient();
     }
@@ -18,7 +17,6 @@ public class AuthenticationTests
     [Fact]
     public async Task Login_WithInvalidCredentials_ReturnsUnauthorized()
     {
-        // Arrange
         var loginData = new
         {
             email = "nobody@example.com",
@@ -30,34 +28,31 @@ public class AuthenticationTests
             System.Text.Encoding.UTF8,
             "application/json");
 
-        // Act
         var response = await _client.PostAsync(
-            "/api/Auth/login", content);
+            "/api/Auth/login",
+            content);
 
-        // Assert
-        Assert.Equal(
-            HttpStatusCode.Unauthorized,
-            response.StatusCode);
+        var responseBody = await response.Content.ReadAsStringAsync();
+
+        Assert.True(
+            response.StatusCode == HttpStatusCode.Unauthorized,
+            $"Expected 401 Unauthorized, but got {(int)response.StatusCode} ({response.StatusCode}). Response: {responseBody}");
     }
-
 
     [Fact]
     public async Task Register_WithMissingRequiredFields_ReturnsBadRequest()
     {
-        // Arrange
         var content = new StringContent(
             "{}",
             System.Text.Encoding.UTF8,
             "application/json");
 
-        // Act
         var response = await _client.PostAsync(
-            "/api/Auth/register", content);
+            "/api/Auth/register",
+            content);
 
-        // Assert
         Assert.Equal(
             HttpStatusCode.BadRequest,
             response.StatusCode);
     }
-
 }
