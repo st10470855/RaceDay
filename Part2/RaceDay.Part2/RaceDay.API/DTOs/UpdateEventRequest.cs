@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace RaceDay.API.DTOs;
 
@@ -28,4 +27,6 @@ public class UpdateEventRequest
         "^(Run|Walk|Cycle)$",
         ErrorMessage = "Event type must be Run, Walk, or Cycle.")]
     public string EventType { get; set; } = string.Empty;
+
+    public string? BannerImageUrl { get; set; }
 }

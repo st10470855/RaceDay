@@ -1,4 +1,5 @@
-﻿namespace RaceDay.API.Models;
+﻿
+namespace RaceDay.API.Models;
 
 public class Event
 {
@@ -17,6 +18,9 @@ public class Event
     public decimal Distance { get; set; }
 
     public string EventType { get; set; } = string.Empty;
+
+    // Optional uploaded event banner image path.
+    public string? BannerImageUrl { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

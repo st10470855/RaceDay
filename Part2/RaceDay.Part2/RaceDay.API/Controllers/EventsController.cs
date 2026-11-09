@@ -1,12 +1,10 @@
-﻿
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaceDay.API.Data;
 using RaceDay.API.DTOs;
 using RaceDay.API.Models;
 using System.Security.Claims;
-
 
 namespace RaceDay.API.Controllers;
 
@@ -20,7 +18,6 @@ public class EventsController : ControllerBase
     {
         _context = context;
     }
-
 
     [HttpGet]
     [AllowAnonymous]
@@ -38,13 +35,13 @@ public class EventsController : ControllerBase
                 e.Location,
                 e.Distance,
                 e.EventType,
-                e.OrganizerID
+                e.OrganizerID,
+                e.BannerImageUrl
             })
             .ToListAsync();
 
         return Ok(events);
     }
-
 
     [HttpGet("my")]
     [Authorize(Roles = "Organizer")]
@@ -74,14 +71,13 @@ public class EventsController : ControllerBase
                 e.Location,
                 e.Distance,
                 e.EventType,
-                e.OrganizerID
+                e.OrganizerID,
+                e.BannerImageUrl
             })
             .ToListAsync();
 
         return Ok(events);
     }
-
-
 
     [HttpPost]
     [Authorize(Roles = "Organizer")]
@@ -91,17 +87,13 @@ public class EventsController : ControllerBase
         var userId = GetLoggedInUserId();
 
         if (userId == null)
-        {
             return Unauthorized();
-        }
 
         var organizer = await _context.Organizers
             .FirstOrDefaultAsync(o => o.UserID == userId.Value);
 
         if (organizer == null)
-        {
             return Forbid();
-        }
 
         var newEvent = new RaceDay.API.Models.Event
         {
@@ -111,7 +103,8 @@ public class EventsController : ControllerBase
             EventDate = request.EventDate!.Value,
             Location = request.Location.Trim(),
             Distance = request.Distance,
-            EventType = request.EventType
+            EventType = request.EventType,
+            BannerImageUrl = request.BannerImageUrl
         };
 
         _context.Events.Add(newEvent);
@@ -126,10 +119,10 @@ public class EventsController : ControllerBase
             newEvent.Location,
             newEvent.Distance,
             newEvent.EventType,
-            newEvent.OrganizerID
+            newEvent.OrganizerID,
+            newEvent.BannerImageUrl
         });
     }
-
 
     [HttpGet("{id:int}")]
     [AllowAnonymous]
@@ -147,7 +140,8 @@ public class EventsController : ControllerBase
                 e.Location,
                 e.Distance,
                 e.EventType,
-                e.OrganizerID
+                e.OrganizerID,
+                e.BannerImageUrl
             })
             .FirstOrDefaultAsync();
 
@@ -171,17 +165,13 @@ public class EventsController : ControllerBase
         var userId = GetLoggedInUserId();
 
         if (userId == null)
-        {
             return Unauthorized();
-        }
 
         var organizer = await _context.Organizers
             .FirstOrDefaultAsync(o => o.UserID == userId.Value);
 
         if (organizer == null)
-        {
             return Forbid();
-        }
 
         var eventItem = await _context.Events
             .FirstOrDefaultAsync(e => e.EventID == id);
@@ -195,9 +185,7 @@ public class EventsController : ControllerBase
         }
 
         if (eventItem.OrganizerID != organizer.OrganizerID)
-        {
             return Forbid();
-        }
 
         eventItem.EventName = request.EventName.Trim();
         eventItem.Description = request.Description;
@@ -205,6 +193,11 @@ public class EventsController : ControllerBase
         eventItem.Location = request.Location.Trim();
         eventItem.Distance = request.Distance;
         eventItem.EventType = request.EventType;
+
+        if (request.BannerImageUrl != null)
+        {
+            eventItem.BannerImageUrl = request.BannerImageUrl;
+        }
 
         await _context.SaveChangesAsync();
 
@@ -217,7 +210,8 @@ public class EventsController : ControllerBase
             eventItem.EventDate,
             eventItem.Location,
             eventItem.Distance,
-            eventItem.EventType
+            eventItem.EventType,
+            eventItem.BannerImageUrl
         });
     }
 
@@ -228,17 +222,13 @@ public class EventsController : ControllerBase
         var userId = GetLoggedInUserId();
 
         if (userId == null)
-        {
             return Unauthorized();
-        }
 
         var organizer = await _context.Organizers
             .FirstOrDefaultAsync(o => o.UserID == userId.Value);
 
         if (organizer == null)
-        {
             return Forbid();
-        }
 
         var eventItem = await _context.Events
             .FirstOrDefaultAsync(e => e.EventID == id);
@@ -252,9 +242,7 @@ public class EventsController : ControllerBase
         }
 
         if (eventItem.OrganizerID != organizer.OrganizerID)
-        {
             return Forbid();
-        }
 
         _context.Events.Remove(eventItem);
         await _context.SaveChangesAsync();
@@ -268,9 +256,7 @@ public class EventsController : ControllerBase
             ClaimTypes.NameIdentifier);
 
         if (int.TryParse(userIdValue, out var userId))
-        {
             return userId;
-        }
 
         return null;
     }

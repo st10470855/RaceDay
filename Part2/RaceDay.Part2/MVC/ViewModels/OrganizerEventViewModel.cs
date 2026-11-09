@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace MVC.ViewModels;
 
@@ -30,4 +31,10 @@ public class OrganizerEventViewModel
     public string EventType { get; set; } = string.Empty;
 
     public int OrganizerID { get; set; }
+
+    // Uploaded event banner image.
+    public IFormFile? BannerImage { get; set; }
+
+    // Path of the saved banner image.
+    public string? BannerImageUrl { get; set; }
 }

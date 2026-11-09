@@ -9,10 +9,14 @@ namespace MVC.Controllers;
 public class OrganizerController : Controller
 {
     private readonly ApiService _apiService;
+    private readonly IWebHostEnvironment _environment;
 
-    public OrganizerController(ApiService apiService)
+    public OrganizerController(
+        ApiService apiService,
+        IWebHostEnvironment environment)
     {
         _apiService = apiService;
+        _environment = environment;
     }
 
     private bool IsOrganizer()
@@ -60,8 +64,66 @@ public class OrganizerController : Controller
         if (!IsOrganizer())
             return RedirectToAction("Login", "Account");
 
+        string? imageUrl = null;
+        string? savedImagePath = null;
+
+        if (model.BannerImage != null &&
+            model.BannerImage.Length > 0)
+        {
+            var allowedExtensions = new[]
+            {
+                ".jpg", ".jpeg", ".png", ".webp"
+            };
+
+            var extension = Path.GetExtension(
+                model.BannerImage.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                ModelState.AddModelError(
+                    "BannerImage",
+                    "Only JPG, JPEG, PNG and WEBP images are allowed.");
+            }
+
+            if (model.BannerImage.Length > 5 * 1024 * 1024)
+            {
+                ModelState.AddModelError(
+                    "BannerImage",
+                    "The image must not exceed 5 MB.");
+            }
+        }
+
         if (!ModelState.IsValid)
             return View(model);
+
+        if (model.BannerImage != null &&
+            model.BannerImage.Length > 0)
+        {
+            var uploadsFolder = Path.Combine(
+                _environment.WebRootPath,
+                "uploads",
+                "events");
+
+            Directory.CreateDirectory(uploadsFolder);
+
+            var extension = Path.GetExtension(
+                model.BannerImage.FileName).ToLowerInvariant();
+
+            var fileName = Guid.NewGuid().ToString("N") + extension;
+
+            savedImagePath = Path.Combine(
+                uploadsFolder,
+                fileName);
+
+            await using (var stream = new FileStream(
+                savedImagePath,
+                FileMode.Create))
+            {
+                await model.BannerImage.CopyToAsync(stream);
+            }
+
+            imageUrl = "/uploads/events/" + fileName;
+        }
 
         var request = new
         {
@@ -70,7 +132,8 @@ public class OrganizerController : Controller
             model.EventDate,
             model.Location,
             model.Distance,
-            model.EventType
+            model.EventType,
+            BannerImageUrl = imageUrl
         };
 
         var response = await _apiService.SendAsync(
@@ -78,6 +141,12 @@ public class OrganizerController : Controller
 
         if (!response.IsSuccessStatusCode)
         {
+            if (savedImagePath != null &&
+                System.IO.File.Exists(savedImagePath))
+            {
+                System.IO.File.Delete(savedImagePath);
+            }
+
             var error = await response.Content.ReadAsStringAsync();
 
             ModelState.AddModelError(
@@ -180,6 +249,7 @@ public class OrganizerController : Controller
 
         return RedirectToAction("Index");
     }
+
     [HttpGet]
     public async Task<IActionResult> Categories(int eventId)
     {
@@ -206,6 +276,7 @@ public class OrganizerController : Controller
 
         return View(categories ?? new List<OrganizerCategoryViewModel>());
     }
+
     [HttpGet]
     public IActionResult CreateCategory(int eventId)
     {
@@ -278,8 +349,10 @@ public class OrganizerController : Controller
             "Categories",
             new { eventId = model.EventID });
     }
+
     [HttpGet]
-    public async Task<IActionResult> EditCategory(int categoryId, int eventId)
+    public async Task<IActionResult> EditCategory(
+        int categoryId, int eventId)
     {
         if (!IsOrganizer())
             return RedirectToAction("Login", "Account");
@@ -301,10 +374,11 @@ public class OrganizerController : Controller
 
         return View(category);
     }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditCategory(
-    OrganizerCategoryViewModel model)
+        OrganizerCategoryViewModel model)
     {
         if (!IsOrganizer())
             return RedirectToAction("Login", "Account");
@@ -359,9 +433,11 @@ public class OrganizerController : Controller
             "Categories",
             new { eventId = model.EventID });
     }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteCategory(int categoryId, int eventId)
+    public async Task<IActionResult> DeleteCategory(
+        int categoryId, int eventId)
     {
         if (!IsOrganizer())
             return RedirectToAction("Login", "Account");
@@ -380,6 +456,7 @@ public class OrganizerController : Controller
 
         return RedirectToAction("Categories", new { eventId });
     }
+
     [HttpGet]
     public async Task<IActionResult> Enrolments(int eventId)
     {
@@ -403,11 +480,12 @@ public class OrganizerController : Controller
 
         return View(enrolments ?? new List<OrganizerEnrolmentViewModel>());
     }
+
     [HttpGet]
     public IActionResult RecordResult(
-    int enrolmentId,
-    int eventId,
-    string? participantName)
+        int enrolmentId,
+        int eventId,
+        string? participantName)
     {
         if (!IsOrganizer())
             return RedirectToAction("Login", "Account");
@@ -423,10 +501,11 @@ public class OrganizerController : Controller
 
         return View(model);
     }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RecordResult(
-    RecordOrganizerResultViewModel model)
+        RecordOrganizerResultViewModel model)
     {
         if (!IsOrganizer())
             return RedirectToAction("Login", "Account");

@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace MVC.ViewModels;
 
@@ -26,4 +27,7 @@ public class CreateOrganizerEventViewModel
 
     [Required(ErrorMessage = "Please select an event type.")]
     public string EventType { get; set; } = string.Empty;
+
+    // Optional event banner image.
+    public IFormFile? BannerImage { get; set; }
 }
