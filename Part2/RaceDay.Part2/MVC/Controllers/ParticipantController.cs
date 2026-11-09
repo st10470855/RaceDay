@@ -188,5 +188,75 @@ namespace MVC.Controllers
             return View(results ?? new List<ParticipantResultViewModel>());
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+            if (!IsParticipant())
+                return RedirectToAction("Login", "Account");
+
+            var response = await _apiService.SendAsync(
+                HttpMethod.Get, "api/Profile");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                ViewBag.ErrorMessage = "Unable to load your profile.";
+                return View(new ParticipantProfileViewModel());
+            }
+
+            var profile = await response.Content
+                .ReadFromJsonAsync<ParticipantProfileViewModel>();
+
+            return View(profile ?? new ParticipantProfileViewModel());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Profile(
+            ParticipantProfileViewModel model)
+        {
+            if (!IsParticipant())
+                return RedirectToAction("Login", "Account");
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var request = new
+            {
+                model.FirstName,
+                model.LastName,
+                model.Email,
+                model.Phone,
+                model.DateOfBirth,
+                model.Gender,
+                model.Club
+            };
+
+            var response = await _apiService.SendAsync(
+                HttpMethod.Put, "api/Profile", request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Unable to update your profile. " + error);
+
+                return View(model);
+            }
+
+            HttpContext.Session.SetString("FirstName", model.FirstName);
+            HttpContext.Session.SetString("Email", model.Email);
+
+            TempData["SuccessMessage"] =
+                "Your profile has been updated successfully.";
+
+            return RedirectToAction("Profile");
+        }
+
+
+
     }
+
 }

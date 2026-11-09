@@ -19,6 +19,7 @@ public class ProfileController : ControllerBase
         _context = context;
     }
 
+
     [HttpGet]
     public async Task<IActionResult> GetProfile()
     {
@@ -57,8 +58,34 @@ public class ProfileController : ControllerBase
             });
         }
 
+        if (user.Role == "Participant")
+        {
+            var participant = await _context.Participants
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.UserID == userId);
+
+            if (participant == null)
+                return NotFound();
+
+            return Ok(new
+            {
+                user.UserID,
+                user.FirstName,
+                user.LastName,
+                user.Email,
+                user.Phone,
+                user.DateCreated,
+                user.IsActive,
+                user.Role,
+                participant.DateOfBirth,
+                participant.Gender,
+                participant.Club
+            });
+        }
+
         return Ok(user);
     }
+
 
 
     [HttpPut]
@@ -169,23 +196,6 @@ public class ProfileController : ControllerBase
             Role = user.Role.RoleName
         });
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
