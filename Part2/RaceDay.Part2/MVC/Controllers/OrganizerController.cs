@@ -403,4 +403,74 @@ public class OrganizerController : Controller
 
         return View(enrolments ?? new List<OrganizerEnrolmentViewModel>());
     }
+    [HttpGet]
+    public IActionResult RecordResult(
+    int enrolmentId,
+    int eventId,
+    string? participantName)
+    {
+        if (!IsOrganizer())
+            return RedirectToAction("Login", "Account");
+
+        var model = new RecordOrganizerResultViewModel
+        {
+            EnrolmentID = enrolmentId,
+            EventID = eventId,
+            ParticipantName = participantName,
+            FinishPosition = 1,
+            OverallPosition = 1
+        };
+
+        return View(model);
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RecordResult(
+    RecordOrganizerResultViewModel model)
+    {
+        if (!IsOrganizer())
+            return RedirectToAction("Login", "Account");
+
+        if (model.FinishTime < TimeSpan.Zero ||
+            model.FinishTime >= TimeSpan.FromDays(1))
+        {
+            ModelState.AddModelError(
+                "FinishTime",
+                "Finish time must be between 00:00:00 and 23:59:59.");
+        }
+
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var request = new
+        {
+            model.EnrolmentID,
+            model.FinishTime,
+            model.FinishPosition,
+            model.OverallPosition
+        };
+
+        var response = await _apiService.SendAsync(
+            HttpMethod.Post,
+            "api/Results",
+            request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+
+            ModelState.AddModelError(
+                "",
+                "Unable to record result. " + error);
+
+            return View(model);
+        }
+
+        TempData["SuccessMessage"] =
+            "Race result recorded successfully!";
+
+        return RedirectToAction(
+            "Enrolments",
+            new { eventId = model.EventID });
+    }
 }

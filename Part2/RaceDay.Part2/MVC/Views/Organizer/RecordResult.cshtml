@@ -1,0 +1,93 @@
+﻿@model MVC.ViewModels.RecordOrganizerResultViewModel
+
+@{
+    ViewData["Title"] = "Record Race Result";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h2 class="fw-bold mb-2">Record Race Result</h2>
+
+                    <p class="text-muted mb-4">
+                        Participant: <strong>@Model.ParticipantName</strong>
+                    </p>
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger"></div>
+
+                    <form asp-action="RecordResult" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               asp-for="EnrolmentID" />
+
+                        <input type="hidden"
+                               asp-for="EventID" />
+
+                        <input type="hidden"
+                               asp-for="ParticipantName" />
+
+                        <div class="mb-3">
+                            <label asp-for="FinishTime"
+                                   class="form-label">
+                                Finish Time (HH:MM:SS)
+                            </label>
+
+                            <input asp-for="FinishTime"
+                                   type="text"
+                                   class="form-control"
+                                   placeholder="00:52:30" />
+
+                            <span asp-validation-for="FinishTime"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="FinishPosition"
+                                   class="form-label">
+                                Finish Position
+                            </label>
+
+                            <input asp-for="FinishPosition"
+                                   type="number"
+                                   min="1"
+                                   class="form-control" />
+
+                            <span asp-validation-for="FinishPosition"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="OverallPosition"
+                                   class="form-label">
+                                Overall Position
+                            </label>
+
+                            <input asp-for="OverallPosition"
+                                   type="number"
+                                   min="1"
+                                   class="form-control" />
+
+                            <span asp-validation-for="OverallPosition"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-success w-100">
+                            Save Race Result
+                        </button>
+
+                        <a asp-action="Enrolments"
+                           asp-route-eventId="@Model.EventID"
+                           class="btn btn-outline-secondary w-100 mt-2">
+                            Cancel
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

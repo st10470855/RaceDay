@@ -5,10 +5,13 @@
 }
 
 <div class="container py-5">
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold">Event Enrolments</h2>
-            <p class="text-muted">Participants registered for this event.</p>
+            <p class="text-muted">
+                Participants registered for this event.
+            </p>
         </div>
 
         <a asp-controller="Organizer"
@@ -17,6 +20,13 @@
             Back to Dashboard
         </a>
     </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
 
     @if (TempData["ErrorMessage"] != null)
     {
@@ -36,31 +46,52 @@
         <div class="card shadow-sm border-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
+
                     <thead class="table-light">
                         <tr>
                             <th>Participant</th>
                             <th>Category</th>
                             <th>Enrolment Date</th>
                             <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         @foreach (var enrolment in Model)
                         {
                             <tr>
                                 <td>@enrolment.ParticipantName</td>
+
                                 <td>@enrolment.CategoryName</td>
-                                <td>@enrolment.EnrolmentDate.ToString("dd MMM yyyy")</td>
+
+                                <td>
+                                    @enrolment.EnrolmentDate.ToString("dd MMM yyyy")
+                                </td>
+
                                 <td>
                                     <span class="badge bg-success">
                                         @enrolment.Status
                                     </span>
                                 </td>
+
+                                <td>
+                                    <a asp-controller="Organizer"
+                                       asp-action="RecordResult"
+                                       asp-route-enrolmentId="@enrolment.EnrolmentID"
+                                       asp-route-eventId="@ViewBag.EventID"
+                                       asp-route-participantName="@enrolment.ParticipantName"
+                                       class="btn btn-sm btn-outline-primary">
+                                        Record Result
+                                    </a>
+                                </td>
                             </tr>
                         }
                     </tbody>
+
                 </table>
             </div>
         </div>
     }
+
 </div>
