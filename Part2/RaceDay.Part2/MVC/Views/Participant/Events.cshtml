@@ -9,7 +9,7 @@
     <div class="mb-4">
         <h1 class="fw-bold text-primary">Browse Events</h1>
         <p class="text-muted">
-            Discover upcoming running, walking and cycling events.
+            Discover running, walking and cycling events.
         </p>
     </div>
 
@@ -34,7 +34,6 @@
         </div>
     }
 
-    <!-- Event Filters -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body p-4">
 
@@ -97,6 +96,19 @@
 
                 </div>
 
+                <div class="form-check mt-3">
+                    <input type="checkbox"
+                           name="upcomingOnly"
+                           id="upcomingOnly"
+                           value="true"
+                           class="form-check-input"
+                           checked="@(ViewBag.UpcomingOnly == true)" />
+
+                    <label for="upcomingOnly" class="form-check-label">
+                        Upcoming Events Only
+                    </label>
+                </div>
+
                 <div class="mt-3">
                     <a asp-controller="Participant"
                        asp-action="Events"
@@ -109,7 +121,6 @@
         </div>
     </div>
 
-    <!-- Event Cards -->
     @if (Model == null || !Model.Any())
     {
         <div class="alert alert-info">

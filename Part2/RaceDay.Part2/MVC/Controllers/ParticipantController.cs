@@ -34,7 +34,8 @@ namespace MVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Events(
             string? eventType,
-            string? location)
+            string? location,
+            bool upcomingOnly = false)
         {
             if (!IsParticipant())
                 return RedirectToAction("Login", "Account");
@@ -52,6 +53,7 @@ namespace MVC.Controllers
                 .ReadFromJsonAsync<List<ParticipantEventViewModel>>()
                 ?? new List<ParticipantEventViewModel>();
 
+            // Filter by event type.
             if (!string.IsNullOrWhiteSpace(eventType))
             {
                 events = events
@@ -61,6 +63,7 @@ namespace MVC.Controllers
                     .ToList();
             }
 
+            // Filter by location.
             if (!string.IsNullOrWhiteSpace(location))
             {
                 events = events
@@ -70,8 +73,18 @@ namespace MVC.Controllers
                     .ToList();
             }
 
+            // Show only upcoming events when requested.
+            if (upcomingOnly)
+            {
+                events = events
+                    .Where(e => e.EventDate >=
+                        DateOnly.FromDateTime(DateTime.Today))
+                    .ToList();
+            }
+
             ViewBag.SelectedEventType = eventType;
             ViewBag.SelectedLocation = location;
+            ViewBag.UpcomingOnly = upcomingOnly;
 
             return View(events);
         }
@@ -112,7 +125,8 @@ namespace MVC.Controllers
             {
                 EventID = id,
                 EventName = eventItem.EventName,
-                Categories = categories ?? new List<ParticipantCategoryViewModel>()
+                Categories = categories ??
+                    new List<ParticipantCategoryViewModel>()
             };
 
             return View(model);
@@ -187,7 +201,8 @@ namespace MVC.Controllers
             var enrolments = await response.Content
                 .ReadFromJsonAsync<List<MyEnrolmentViewModel>>();
 
-            return View(enrolments ?? new List<MyEnrolmentViewModel>());
+            return View(enrolments ??
+                new List<MyEnrolmentViewModel>());
         }
 
         public async Task<IActionResult> Results()
@@ -209,7 +224,8 @@ namespace MVC.Controllers
             var results = await response.Content
                 .ReadFromJsonAsync<List<ParticipantResultViewModel>>();
 
-            return View(results ?? new List<ParticipantResultViewModel>());
+            return View(results ??
+                new List<ParticipantResultViewModel>());
         }
 
         [HttpGet]
@@ -230,7 +246,8 @@ namespace MVC.Controllers
             var profile = await response.Content
                 .ReadFromJsonAsync<ParticipantProfileViewModel>();
 
-            return View(profile ?? new ParticipantProfileViewModel());
+            return View(profile ??
+                new ParticipantProfileViewModel());
         }
 
         [HttpPost]
