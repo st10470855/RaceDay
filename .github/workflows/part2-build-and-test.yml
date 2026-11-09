@@ -1,4 +1,5 @@
-name: RaceDay Part 2 Build and Test
+
+name: RaceDay Part 3 Build and Test
 
 on:
   push:
@@ -24,11 +25,39 @@ jobs:
           echo "Files and folders:"
           find . -maxdepth 5 \( -name "*.sln" -o -name "*.slnx" -o -name "*.csproj" \) -print
 
-      - name: Restore dependencies
-        run: dotnet restore "$(find . -name 'RaceDay.Part2.sln' -print -quit)"
+      - name: Locate solution
+        run: |
+          SOLUTION=$(find . -name 'RaceDay.Part2.sln' -print -quit)
+
+          if [ -z "$SOLUTION" ]; then
+            echo "Solution file not found."
+            exit 1
+          fi
+
+          echo "SOLUTION=$SOLUTION" >> "$GITHUB_ENV"
+
+      - name: Restore solution dependencies
+        run: dotnet restore "$SOLUTION"
 
       - name: Build solution
-        run: dotnet build "$(find . -name 'RaceDay.Part2.sln' -print -quit)" --configuration Release --no-restore
+        run: dotnet build "$SOLUTION" --configuration Release --no-restore
 
-      - name: Run tests
-        run: dotnet test "$(find . -name 'RaceDay.Part2.sln' -print -quit)" --configuration Release --no-build --verbosity normal
+      - name: Run API tests
+        run: dotnet test "$SOLUTION" --configuration Release --no-build --verbosity normal
+
+      - name: Locate MVC project
+        run: |
+          MVC_PROJECT=$(find . -name 'MVC.csproj' -print -quit)
+
+          if [ -z "$MVC_PROJECT" ]; then
+            echo "MVC project file not found."
+            exit 1
+          fi
+
+          echo "MVC_PROJECT=$MVC_PROJECT" >> "$GITHUB_ENV"
+
+      - name: Restore MVC dependencies
+        run: dotnet restore "$MVC_PROJECT"
+
+      - name: Build MVC project
+        run: dotnet build "$MVC_PROJECT" --configuration Release --no-restore
