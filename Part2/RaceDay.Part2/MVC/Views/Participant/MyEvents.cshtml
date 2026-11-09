@@ -39,12 +39,14 @@
 
             @foreach (var enrolment in Model)
             {
+                var status = enrolment.Status?.Trim().ToLowerInvariant();
+
                 <div class="col-md-6 col-lg-4">
                     <div class="card shadow-sm border-0 h-100">
 
                         <div class="card-body p-4">
 
-                            <h4 class="fw-bold">
+                            <h4 class="fw-bold mb-3">
                                 @enrolment.EventName
                             </h4>
 
@@ -53,39 +55,48 @@
                                 @enrolment.CategoryName
                             </p>
 
-                            <p>
+                            <p class="mb-3">
                                 <strong>Enrolment date:</strong>
                                 @enrolment.EnrolmentDate.ToString("dd MMM yyyy")
                             </p>
 
-                            <p>
-                                <strong>Status:</strong>
+                            <div class="border-top pt-3">
+                                <strong class="d-block mb-2">
+                                    Enrolment Status
+                                </strong>
 
-                                @if (enrolment.Status == "Confirmed")
+                                @switch (status)
                                 {
-                                    <span class="badge bg-success">
-                                        Confirmed
-                                    </span>
+                                    case "confirmed":
+                                    case "approved":
+                                    case "enrolled":
+                                        <span class="badge bg-success fs-6 px-3 py-2">
+                                            @enrolment.Status
+                                        </span>
+                                        break;
+
+                                    case "pending":
+                                        <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                                            Pending
+                                        </span>
+                                        break;
+
+                                    case "cancelled":
+                                    case "rejected":
+                                        <span class="badge bg-danger fs-6 px-3 py-2">
+                                            @enrolment.Status
+                                        </span>
+                                        break;
+
+                                    default:
+                                        <span class="badge bg-secondary fs-6 px-3 py-2">
+                                            @(string.IsNullOrWhiteSpace(enrolment.Status)
+                                                                        ? "Unknown"
+                                                                        : enrolment.Status)
+                        </span>
+                                                break;
                                 }
-                                else if (enrolment.Status == "Pending")
-                                {
-                                    <span class="badge bg-warning text-dark">
-                                        Pending
-                                    </span>
-                                }
-                                else if (enrolment.Status == "Cancelled")
-                                {
-                                    <span class="badge bg-danger">
-                                        Cancelled
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">
-                                        @enrolment.Status
-                                    </span>
-                                }
-                            </p>
+                            </div>
 
                         </div>
                     </div>
