@@ -92,4 +92,92 @@ public class OrganizerController : Controller
 
         return RedirectToAction("Index");
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        if (!IsOrganizer())
+            return RedirectToAction("Login", "Account");
+
+        var response = await _apiService.SendAsync(
+            HttpMethod.Get, $"api/Events/{id}");
+
+        if (!response.IsSuccessStatusCode)
+            return NotFound();
+
+        var eventItem = await response.Content
+            .ReadFromJsonAsync<EditOrganizerEventViewModel>();
+
+        if (eventItem == null)
+            return NotFound();
+
+        return View(eventItem);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(
+        EditOrganizerEventViewModel model)
+    {
+        if (!IsOrganizer())
+            return RedirectToAction("Login", "Account");
+
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var request = new
+        {
+            model.EventName,
+            model.Description,
+            model.EventDate,
+            model.Location,
+            model.Distance,
+            model.EventType
+        };
+
+        var response = await _apiService.SendAsync(
+            HttpMethod.Put,
+            $"api/Events/{model.EventID}",
+            request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+
+            ModelState.AddModelError(
+                string.Empty,
+                "Unable to update event. " + error);
+
+            return View(model);
+        }
+
+        TempData["SuccessMessage"] =
+            "Event updated successfully!";
+
+        return RedirectToAction("Index");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        if (!IsOrganizer())
+            return RedirectToAction("Login", "Account");
+
+        var response = await _apiService.SendAsync(
+            HttpMethod.Delete, $"api/Events/{id}");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            TempData["ErrorMessage"] =
+                "Unable to delete event. You may not own this event.";
+
+            return RedirectToAction("Index");
+        }
+
+        TempData["SuccessMessage"] =
+            "Event deleted successfully!";
+
+        return RedirectToAction("Index");
+    }
 }
