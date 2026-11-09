@@ -1,0 +1,149 @@
+﻿@model List<MVC.ViewModels.OrganizerEventViewModel>
+
+@{
+    ViewData["Title"] = "Organizer Dashboard";
+}
+
+<div class="container py-5">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["SuccessMessage"]
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+    <div class="mb-4">
+        <h1 class="fw-bold text-primary">
+            Organizer Dashboard
+        </h1>
+
+        <p class="text-muted">
+            Welcome to RaceDay! Manage your events and race activities.
+        </p>
+    </div>
+    <a asp-controller="Organizer"
+       asp-action="Create"
+       class="btn btn-primary mt-2">
+        + Create New Event
+    </a>
+
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+
+    <div class="row g-4 mb-5">
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold">Manage Events</h5>
+                    <p class="text-muted">
+                        Create, update and manage your race events.
+                    </p>
+                    <a asp-controller="Organizer"
+                       asp-action="Events"
+                       class="btn btn-primary">
+                        Manage Events
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold">Categories</h5>
+                    <p class="text-muted">
+                        Manage the categories available for your events.
+                    </p>
+                    <a asp-controller="Organizer"
+                       asp-action="Categories"
+                       class="btn btn-outline-primary">
+                        Manage Categories
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold">Enrolments and Results</h5>
+                    <p class="text-muted">
+                        View participant registrations and record race results.
+                    </p>
+                    <a asp-controller="Organizer"
+                       asp-action="Enrolments"
+                       class="btn btn-outline-primary">
+                        View Enrolments
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <h3 class="fw-bold mb-3">Your Events</h3>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            No events are currently available.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            @foreach (var eventItem in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card shadow-sm border-0 h-100">
+
+                        <div class="card-body p-4">
+
+                            <span class="badge bg-primary mb-3">
+                                @eventItem.EventType
+                            </span>
+
+                            <h4 class="fw-bold">
+                                @eventItem.EventName
+                            </h4>
+
+                            <p class="text-muted">
+                                @eventItem.Description
+                            </p>
+
+                            <hr />
+
+                            <p>
+                                <strong>Date:</strong>
+                                @(eventItem.EventDate?.ToString("dd MMM yyyy") ?? "Date not set")
+                            </p>
+
+                            <p>
+                                <strong>Location:</strong>
+                                @eventItem.Location
+                            </p>
+
+                            <p>
+                                <strong>Distance:</strong>
+                                @eventItem.Distance km
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    }
+
+</div>

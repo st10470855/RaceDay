@@ -46,6 +46,43 @@ public class EventsController : ControllerBase
     }
 
 
+    [HttpGet("my")]
+    [Authorize(Roles = "Organizer")]
+    public async Task<IActionResult> GetMyEvents()
+    {
+        var userId = GetLoggedInUserId();
+
+        if (userId == null)
+            return Unauthorized();
+
+        var organizer = await _context.Organizers
+            .FirstOrDefaultAsync(o => o.UserID == userId.Value);
+
+        if (organizer == null)
+            return Forbid();
+
+        var events = await _context.Events
+            .AsNoTracking()
+            .Where(e => e.OrganizerID == organizer.OrganizerID)
+            .OrderBy(e => e.EventDate)
+            .Select(e => new
+            {
+                e.EventID,
+                e.EventName,
+                e.Description,
+                e.EventDate,
+                e.Location,
+                e.Distance,
+                e.EventType,
+                e.OrganizerID
+            })
+            .ToListAsync();
+
+        return Ok(events);
+    }
+
+
+
     [HttpPost]
     [Authorize(Roles = "Organizer")]
     public async Task<IActionResult> CreateEvent(
