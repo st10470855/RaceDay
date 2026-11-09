@@ -35,7 +35,8 @@ namespace MVC.Controllers
         public async Task<IActionResult> Events(
             string? eventType,
             string? location,
-            bool upcomingOnly = false)
+            bool upcomingOnly = false,
+            string? sortBy = "date")
         {
             if (!IsParticipant())
                 return RedirectToAction("Login", "Account");
@@ -82,9 +83,26 @@ namespace MVC.Controllers
                     .ToList();
             }
 
+            // Sort events.
+            events = sortBy?.ToLower() switch
+            {
+                "name" => events
+                    .OrderBy(e => e.EventName)
+                    .ToList(),
+
+                "date-desc" => events
+                    .OrderByDescending(e => e.EventDate)
+                    .ToList(),
+
+                _ => events
+                    .OrderBy(e => e.EventDate)
+                    .ToList()
+            };
+
             ViewBag.SelectedEventType = eventType;
             ViewBag.SelectedLocation = location;
             ViewBag.UpcomingOnly = upcomingOnly;
+            ViewBag.SelectedSortBy = sortBy ?? "date";
 
             return View(events);
         }

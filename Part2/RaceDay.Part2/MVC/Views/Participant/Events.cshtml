@@ -45,7 +45,7 @@
 
                 <div class="row g-3">
 
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <label for="eventType" class="form-label">
                             Event Type
                         </label>
@@ -74,7 +74,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <label for="location" class="form-label">
                             Location
                         </label>
@@ -87,11 +87,31 @@
                                value="@ViewBag.SelectedLocation" />
                     </div>
 
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit"
-                                class="btn btn-primary w-100">
-                            Filter
-                        </button>
+                    <div class="col-md-4">
+                        <label for="sortBy" class="form-label">
+                            Sort Events By
+                        </label>
+
+                        <select name="sortBy"
+                                id="sortBy"
+                                class="form-select">
+
+                            <option value="date"
+                                    selected="@(ViewBag.SelectedSortBy?.ToString() == "date")">
+                                Earliest Date First
+                            </option>
+
+                            <option value="date-desc"
+                                    selected="@(ViewBag.SelectedSortBy?.ToString() == "date-desc")">
+                                Latest Date First
+                            </option>
+
+                            <option value="name"
+                                    selected="@(ViewBag.SelectedSortBy?.ToString() == "name")">
+                                Event Name (A-Z)
+                            </option>
+
+                        </select>
                     </div>
 
                 </div>
@@ -109,12 +129,19 @@
                     </label>
                 </div>
 
-                <div class="mt-3">
+                <div class="d-flex gap-2 mt-3">
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Apply Filters
+                    </button>
+
                     <a asp-controller="Participant"
                        asp-action="Events"
-                       class="btn btn-outline-secondary btn-sm">
+                       class="btn btn-outline-secondary">
                         Clear Filters
                     </a>
+
                 </div>
 
             </form>
