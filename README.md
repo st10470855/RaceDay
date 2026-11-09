@@ -237,6 +237,50 @@ Open the solution in Visual Studio, open **Test Explorer**, and select **Run All
 
 [View the Part 2 GitHub Actions workflow](https://github.com/st10470855/RaceDay/actions/workflows/part2-build-and-test.yml)
 
-### Part 3 — Future Development
+## Part 3 — MVC Front-End Development
 
+Part 3 implements the RaceDay web application using ASP.NET Core MVC. The MVC application communicates with the Part 2 RESTful API.
+
+### Participant Features
+- Participant registration and login.
+- Browse running, walking and cycling events.
+- Filter events by event type and location.
+- View event information and categories.
+- Enrol in events.
+- View personal event enrolments.
+- View personal race results.
+- View and update participant profiles.
+
+### Organiser Features
+- Organiser login and dashboard.
+- Create, edit and delete events.
+- Create, edit and delete event categories.
+- View participant enrolments.
+- Record participant race results.
+
+### Authentication and Navigation
+- Role-based navigation for Participants and Organisers.
+- Protected pages based on user roles.
+- Session-based authentication.
+- Logout functionality.
+
+### Technologies
+- C#
+- ASP.NET Core MVC (.NET 8)
+- ASP.NET Core Web API
+- Entity Framework Core
+- Microsoft SQL Server
+- Bootstrap
+- Visual Studio 2022
+- GitHub Actions
+- xUnit
+
+### API Integration
+The MVC application communicates with the RESTful API through the ApiService class. The MVC application does not access the database directly.
+
+### Continuous Integration
+GitHub Actions builds the API and MVC projects and runs the API automated tests.
+
+### Part 3 Completion
+Part 3 provides a functional MVC front-end for Participants and Organisers, integrated with the RESTful API developed in Part 2.
 
