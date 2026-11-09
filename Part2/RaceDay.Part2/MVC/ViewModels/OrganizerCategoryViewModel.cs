@@ -15,5 +15,13 @@ public class OrganizerCategoryViewModel
     [StringLength(500)]
     public string? Description { get; set; }
 
-    public decimal? EntryFee { get; set; }
+    public int? MinAge { get; set; }
+
+    public int? MaxAge { get; set; }
+
+    public decimal? MinDistance { get; set; }
+
+    public decimal? MaxDistance { get; set; }
+
+    public int SortOrder { get; set; }
 }

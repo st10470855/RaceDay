@@ -278,4 +278,106 @@ public class OrganizerController : Controller
             "Categories",
             new { eventId = model.EventID });
     }
+    [HttpGet]
+    public async Task<IActionResult> EditCategory(int categoryId, int eventId)
+    {
+        if (!IsOrganizer())
+            return RedirectToAction("Login", "Account");
+
+        var response = await _apiService.SendAsync(
+            HttpMethod.Get, $"api/Categories/event/{eventId}");
+
+        if (!response.IsSuccessStatusCode)
+            return NotFound();
+
+        var categories = await response.Content
+            .ReadFromJsonAsync<List<OrganizerCategoryViewModel>>();
+
+        var category = categories?.FirstOrDefault(
+            c => c.CategoryID == categoryId);
+
+        if (category == null)
+            return NotFound();
+
+        return View(category);
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditCategory(
+    OrganizerCategoryViewModel model)
+    {
+        if (!IsOrganizer())
+            return RedirectToAction("Login", "Account");
+
+        if (model.MinAge.HasValue &&
+            model.MaxAge.HasValue &&
+            model.MinAge > model.MaxAge)
+        {
+            ModelState.AddModelError(
+                "", "Minimum age cannot exceed maximum age.");
+        }
+
+        if (model.MinDistance.HasValue &&
+            model.MaxDistance.HasValue &&
+            model.MinDistance > model.MaxDistance)
+        {
+            ModelState.AddModelError(
+                "", "Minimum distance cannot exceed maximum distance.");
+        }
+
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var request = new
+        {
+            model.CategoryName,
+            model.Description,
+            model.MinAge,
+            model.MaxAge,
+            model.MinDistance,
+            model.MaxDistance,
+            model.SortOrder
+        };
+
+        var response = await _apiService.SendAsync(
+            HttpMethod.Put,
+            $"api/Categories/{model.CategoryID}",
+            request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            ModelState.AddModelError(
+                "", "Unable to update category. " +
+                await response.Content.ReadAsStringAsync());
+
+            return View(model);
+        }
+
+        TempData["SuccessMessage"] = "Category updated successfully!";
+
+        return RedirectToAction(
+            "Categories",
+            new { eventId = model.EventID });
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteCategory(int categoryId, int eventId)
+    {
+        if (!IsOrganizer())
+            return RedirectToAction("Login", "Account");
+
+        var response = await _apiService.SendAsync(
+            HttpMethod.Delete, $"api/Categories/{categoryId}");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            TempData["ErrorMessage"] = "Unable to delete category.";
+        }
+        else
+        {
+            TempData["SuccessMessage"] = "Category deleted successfully!";
+        }
+
+        return RedirectToAction("Categories", new { eventId });
+    }
 }
