@@ -1,16 +1,26 @@
 ﻿@{
     ViewData["Title"] = "Participant Dashboard";
+    var firstName = Context.Session.GetString("FirstName") ?? "Participant";
 }
 
 <div class="container py-5">
 
-    <div class="mb-5">
-        <h1 class="fw-bold text-primary">Welcome to RaceDay!</h1>
-        <p class="text-muted">
+    <div class="p-4 p-md-5 mb-5 bg-primary text-white rounded-3 shadow-sm">
+        <h1 class="fw-bold">Welcome, @firstName!</h1>
+        <p class="lead mb-3">
             Your next adventure starts here. Discover events,
             manage your entries and track your results.
         </p>
+
+        <a asp-controller="Participant"
+           asp-action="Events"
+           asp-route-upcomingOnly="true"
+           class="btn btn-light text-primary fw-bold">
+            Explore Upcoming Events
+        </a>
     </div>
+
+    <h3 class="fw-bold mb-4">Your RaceDay Dashboard</h3>
 
     <div class="row g-4">
 
@@ -19,7 +29,7 @@
                 <div class="card-body p-4">
                     <h4 class="fw-bold">Browse Events</h4>
                     <p class="text-muted">
-                        Discover upcoming running, walking and cycling events.
+                        Discover running, walking and cycling events.
                     </p>
                     <a asp-controller="Participant"
                        asp-action="Events"
@@ -79,4 +89,11 @@
         </div>
 
     </div>
+
+    <div class="alert alert-info mt-5">
+        <strong>RaceDay Tip:</strong>
+        Keep your profile updated so your event registration
+        information stays accurate.
+    </div>
+
 </div>
