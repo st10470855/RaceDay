@@ -380,4 +380,27 @@ public class OrganizerController : Controller
 
         return RedirectToAction("Categories", new { eventId });
     }
+    [HttpGet]
+    public async Task<IActionResult> Enrolments(int eventId)
+    {
+        if (!IsOrganizer())
+            return RedirectToAction("Login", "Account");
+
+        var response = await _apiService.SendAsync(
+            HttpMethod.Get,
+            $"api/Enrolments/event/{eventId}");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            TempData["ErrorMessage"] = "Unable to load event enrolments.";
+            return RedirectToAction("Index");
+        }
+
+        var enrolments = await response.Content
+            .ReadFromJsonAsync<List<OrganizerEnrolmentViewModel>>();
+
+        ViewBag.EventID = eventId;
+
+        return View(enrolments ?? new List<OrganizerEnrolmentViewModel>());
+    }
 }
