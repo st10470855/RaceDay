@@ -150,6 +150,8 @@ namespace MVC.Controllers
             var response = await _apiService.SendAsync(
                 HttpMethod.Get, "api/Enrolments/my");
 
+
+
             if (!response.IsSuccessStatusCode)
             {
                 ViewBag.ErrorMessage =
@@ -163,5 +165,28 @@ namespace MVC.Controllers
 
             return View(enrolments ?? new List<MyEnrolmentViewModel>());
         }
+
+        public async Task<IActionResult> Results()
+        {
+            if (!IsParticipant())
+                return RedirectToAction("Login", "Account");
+
+            var response = await _apiService.SendAsync(
+                HttpMethod.Get, "api/Results/my");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                ViewBag.ErrorMessage =
+                    "Unable to load your race results.";
+
+                return View(new List<ParticipantResultViewModel>());
+            }
+
+            var results = await response.Content
+                .ReadFromJsonAsync<List<ParticipantResultViewModel>>();
+
+            return View(results ?? new List<ParticipantResultViewModel>());
+        }
+
     }
 }
