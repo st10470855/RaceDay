@@ -12,6 +12,7 @@
             Discover upcoming running, walking and cycling events.
         </p>
     </div>
+
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success">
@@ -33,20 +34,103 @@
         </div>
     }
 
+    <!-- Event Filters -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+
+            <h5 class="fw-bold mb-3">Find an Event</h5>
+
+            <form asp-controller="Participant"
+                  asp-action="Events"
+                  method="get">
+
+                <div class="row g-3">
+
+                    <div class="col-md-5">
+                        <label for="eventType" class="form-label">
+                            Event Type
+                        </label>
+
+                        <select name="eventType"
+                                id="eventType"
+                                class="form-select">
+
+                            <option value="">All Event Types</option>
+
+                            <option value="Run"
+                                    selected="@(ViewBag.SelectedEventType?.ToString() == "Run")">
+                                Running
+                            </option>
+
+                            <option value="Walk"
+                                    selected="@(ViewBag.SelectedEventType?.ToString() == "Walk")">
+                                Walking
+                            </option>
+
+                            <option value="Cycle"
+                                    selected="@(ViewBag.SelectedEventType?.ToString() == "Cycle")">
+                                Cycling
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div class="col-md-5">
+                        <label for="location" class="form-label">
+                            Location
+                        </label>
+
+                        <input type="text"
+                               name="location"
+                               id="location"
+                               class="form-control"
+                               placeholder="Enter a location"
+                               value="@ViewBag.SelectedLocation" />
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+                            Filter
+                        </button>
+                    </div>
+
+                </div>
+
+                <div class="mt-3">
+                    <a asp-controller="Participant"
+                       asp-action="Events"
+                       class="btn btn-outline-secondary btn-sm">
+                        Clear Filters
+                    </a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Event Cards -->
     @if (Model == null || !Model.Any())
     {
         <div class="alert alert-info">
-            No events are currently available.
-            Please check again later.
+            No events match your search.
+            Try changing your filters or clearing them.
         </div>
     }
     else
     {
+        <div class="mb-3">
+            <span class="text-muted">
+                @Model.Count event(s) found.
+            </span>
+        </div>
+
         <div class="row g-4">
 
             @foreach (var eventItem in Model)
             {
                 <div class="col-md-6 col-lg-4">
+
                     <div class="card shadow-sm border-0 h-100">
 
                         <div class="card-body p-4">
@@ -79,6 +163,7 @@
                                 <strong>Distance:</strong>
                                 @eventItem.Distance km
                             </p>
+
                             <a asp-controller="Participant"
                                asp-action="Enrol"
                                asp-route-id="@eventItem.EventID"
@@ -89,6 +174,7 @@
                         </div>
 
                     </div>
+
                 </div>
             }
 

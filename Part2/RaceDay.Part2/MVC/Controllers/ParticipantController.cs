@@ -31,7 +31,10 @@ namespace MVC.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Events()
+        [HttpGet]
+        public async Task<IActionResult> Events(
+            string? eventType,
+            string? location)
         {
             if (!IsParticipant())
                 return RedirectToAction("Login", "Account");
@@ -46,9 +49,31 @@ namespace MVC.Controllers
             }
 
             var events = await response.Content
-                .ReadFromJsonAsync<List<ParticipantEventViewModel>>();
+                .ReadFromJsonAsync<List<ParticipantEventViewModel>>()
+                ?? new List<ParticipantEventViewModel>();
 
-            return View(events ?? new List<ParticipantEventViewModel>());
+            if (!string.IsNullOrWhiteSpace(eventType))
+            {
+                events = events
+                    .Where(e => e.EventType.Equals(
+                        eventType,
+                        StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(location))
+            {
+                events = events
+                    .Where(e => e.Location.Contains(
+                        location,
+                        StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            ViewBag.SelectedEventType = eventType;
+            ViewBag.SelectedLocation = location;
+
+            return View(events);
         }
 
         [HttpGet]
@@ -95,7 +120,8 @@ namespace MVC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Enrol(CreateEnrolmentViewModel model)
+        public async Task<IActionResult> Enrol(
+            CreateEnrolmentViewModel model)
         {
             if (!IsParticipant())
                 return RedirectToAction("Login", "Account");
@@ -150,8 +176,6 @@ namespace MVC.Controllers
             var response = await _apiService.SendAsync(
                 HttpMethod.Get, "api/Enrolments/my");
 
-
-
             if (!response.IsSuccessStatusCode)
             {
                 ViewBag.ErrorMessage =
@@ -187,7 +211,6 @@ namespace MVC.Controllers
 
             return View(results ?? new List<ParticipantResultViewModel>());
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Profile()
@@ -254,9 +277,5 @@ namespace MVC.Controllers
 
             return RedirectToAction("Profile");
         }
-
-
-
     }
-
 }
