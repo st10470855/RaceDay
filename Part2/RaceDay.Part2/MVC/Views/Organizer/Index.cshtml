@@ -157,7 +157,12 @@
                                     <button type="submit" class="btn btn-outline-danger">
                                         Delete
                                     </button>
-
+                                    <a asp-controller="Organizer"
+                                       asp-action="Categories"
+                                       asp-route-eventId="@eventItem.EventID"
+                                       class="btn btn-outline-success">
+                                        Categories
+                                    </a>
                                 </form>
 
                             </div>

@@ -180,4 +180,102 @@ public class OrganizerController : Controller
 
         return RedirectToAction("Index");
     }
+    [HttpGet]
+    public async Task<IActionResult> Categories(int eventId)
+    {
+        if (!IsOrganizer())
+            return RedirectToAction("Login", "Account");
+
+        var response = await _apiService.SendAsync(
+            HttpMethod.Get, $"api/Categories/event/{eventId}");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+
+            TempData["ErrorMessage"] =
+                $"Unable to load categories. API Status: {(int)response.StatusCode}. Details: {error}";
+
+            return RedirectToAction("Index");
+        }
+
+        var categories = await response.Content
+            .ReadFromJsonAsync<List<OrganizerCategoryViewModel>>();
+
+        ViewBag.EventID = eventId;
+
+        return View(categories ?? new List<OrganizerCategoryViewModel>());
+    }
+    [HttpGet]
+    public IActionResult CreateCategory(int eventId)
+    {
+        if (!IsOrganizer())
+            return RedirectToAction("Login", "Account");
+
+        return View(new CreateOrganizerCategoryViewModel
+        {
+            EventID = eventId
+        });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateCategory(
+        CreateOrganizerCategoryViewModel model)
+    {
+        if (!IsOrganizer())
+            return RedirectToAction("Login", "Account");
+
+        if (model.MinAge.HasValue &&
+            model.MaxAge.HasValue &&
+            model.MinAge > model.MaxAge)
+        {
+            ModelState.AddModelError(
+                "", "Minimum age cannot exceed maximum age.");
+        }
+
+        if (model.MinDistance.HasValue &&
+            model.MaxDistance.HasValue &&
+            model.MinDistance > model.MaxDistance)
+        {
+            ModelState.AddModelError(
+                "", "Minimum distance cannot exceed maximum distance.");
+        }
+
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var request = new
+        {
+            model.CategoryName,
+            model.Description,
+            model.MinAge,
+            model.MaxAge,
+            model.MinDistance,
+            model.MaxDistance,
+            model.SortOrder
+        };
+
+        var response = await _apiService.SendAsync(
+            HttpMethod.Post,
+            $"api/Categories/event/{model.EventID}",
+            request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+
+            ModelState.AddModelError(
+                "", "Unable to create category. " + error);
+
+            return View(model);
+        }
+
+        TempData["SuccessMessage"] =
+            "Category created successfully!";
+
+        return RedirectToAction(
+            "Categories",
+            new { eventId = model.EventID });
+    }
 }
