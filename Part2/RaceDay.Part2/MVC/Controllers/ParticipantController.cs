@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
 using MVC.Services;
 using MVC.ViewModels;
 using System.Net.Http.Json;
@@ -139,6 +140,28 @@ namespace MVC.Controllers
                 "You have successfully enrolled in the event!";
 
             return RedirectToAction("Events");
+        }
+
+        public async Task<IActionResult> MyEvents()
+        {
+            if (!IsParticipant())
+                return RedirectToAction("Login", "Account");
+
+            var response = await _apiService.SendAsync(
+                HttpMethod.Get, "api/Enrolments/my");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                ViewBag.ErrorMessage =
+                    "Unable to load your event registrations.";
+
+                return View(new List<MyEnrolmentViewModel>());
+            }
+
+            var enrolments = await response.Content
+                .ReadFromJsonAsync<List<MyEnrolmentViewModel>>();
+
+            return View(enrolments ?? new List<MyEnrolmentViewModel>());
         }
     }
 }

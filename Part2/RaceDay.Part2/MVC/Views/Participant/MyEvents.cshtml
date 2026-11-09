@@ -1,0 +1,106 @@
+﻿@model List<MVC.ViewModels.MyEnrolmentViewModel>
+
+@{
+    ViewData["Title"] = "My Events";
+}
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <h1 class="fw-bold text-primary">My Events</h1>
+        <p class="text-muted">
+            View the events you have registered for and check your enrolment status.
+        </p>
+    </div>
+
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            You have not enrolled in any events yet.
+            Browse available events to get started!
+        </div>
+
+        <a asp-controller="Participant"
+           asp-action="Events"
+           class="btn btn-primary">
+            Browse Events
+        </a>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            @foreach (var enrolment in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card shadow-sm border-0 h-100">
+
+                        <div class="card-body p-4">
+
+                            <h4 class="fw-bold">
+                                @enrolment.EventName
+                            </h4>
+
+                            <p class="text-muted mb-2">
+                                <strong>Category:</strong>
+                                @enrolment.CategoryName
+                            </p>
+
+                            <p>
+                                <strong>Enrolment date:</strong>
+                                @enrolment.EnrolmentDate.ToString("dd MMM yyyy")
+                            </p>
+
+                            <p>
+                                <strong>Status:</strong>
+
+                                @if (enrolment.Status == "Confirmed")
+                                {
+                                    <span class="badge bg-success">
+                                        Confirmed
+                                    </span>
+                                }
+                                else if (enrolment.Status == "Pending")
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        Pending
+                                    </span>
+                                }
+                                else if (enrolment.Status == "Cancelled")
+                                {
+                                    <span class="badge bg-danger">
+                                        Cancelled
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        @enrolment.Status
+                                    </span>
+                                }
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    }
+
+    <div class="mt-4">
+        <a asp-controller="Participant"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+</div>
