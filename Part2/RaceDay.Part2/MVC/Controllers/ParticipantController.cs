@@ -25,9 +25,7 @@ namespace MVC.Controllers
         public IActionResult Index()
         {
             if (!IsParticipant())
-            {
                 return RedirectToAction("Login", "Account");
-            }
 
             return View();
         }
@@ -35,18 +33,14 @@ namespace MVC.Controllers
         public async Task<IActionResult> Events()
         {
             if (!IsParticipant())
-            {
                 return RedirectToAction("Login", "Account");
-            }
 
             var response = await _apiService.SendAsync(
                 HttpMethod.Get, "api/Events");
 
             if (!response.IsSuccessStatusCode)
             {
-                ViewBag.ErrorMessage =
-                    "Unable to load events. Please try again.";
-
+                ViewBag.ErrorMessage = "Unable to load events.";
                 return View(new List<ParticipantEventViewModel>());
             }
 
@@ -54,6 +48,97 @@ namespace MVC.Controllers
                 .ReadFromJsonAsync<List<ParticipantEventViewModel>>();
 
             return View(events ?? new List<ParticipantEventViewModel>());
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Enrol(int id)
+        {
+            if (!IsParticipant())
+                return RedirectToAction("Login", "Account");
+
+            var eventResponse = await _apiService.SendAsync(
+                HttpMethod.Get, $"api/Events/{id}");
+
+            if (!eventResponse.IsSuccessStatusCode)
+                return NotFound();
+
+            var eventItem = await eventResponse.Content
+                .ReadFromJsonAsync<ParticipantEventViewModel>();
+
+            if (eventItem == null)
+                return NotFound();
+
+            var categoryResponse = await _apiService.SendAsync(
+                HttpMethod.Get, $"api/Categories/event/{id}");
+
+            if (!categoryResponse.IsSuccessStatusCode)
+            {
+                TempData["ErrorMessage"] =
+                    "Unable to load event categories.";
+
+                return RedirectToAction("Events");
+            }
+
+            var categories = await categoryResponse.Content
+                .ReadFromJsonAsync<List<ParticipantCategoryViewModel>>();
+
+            var model = new CreateEnrolmentViewModel
+            {
+                EventID = id,
+                EventName = eventItem.EventName,
+                Categories = categories ?? new List<ParticipantCategoryViewModel>()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Enrol(CreateEnrolmentViewModel model)
+        {
+            if (!IsParticipant())
+                return RedirectToAction("Login", "Account");
+
+            if (!ModelState.IsValid)
+            {
+                var categoryResponse = await _apiService.SendAsync(
+                    HttpMethod.Get,
+                    $"api/Categories/event/{model.EventID}");
+
+                if (categoryResponse.IsSuccessStatusCode)
+                {
+                    model.Categories =
+                        await categoryResponse.Content
+                            .ReadFromJsonAsync<List<ParticipantCategoryViewModel>>()
+                        ?? new List<ParticipantCategoryViewModel>();
+                }
+
+                return View(model);
+            }
+
+            var request = new
+            {
+                model.EventID,
+                model.CategoryID
+            };
+
+            var response = await _apiService.SendAsync(
+                HttpMethod.Post, "api/Enrolments", request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["ErrorMessage"] =
+                    response.StatusCode == System.Net.HttpStatusCode.Conflict
+                    ? "You are already enrolled in this event."
+                    : "Enrolment failed. Please check the selected category.";
+
+                return RedirectToAction("Enrol", new { id = model.EventID });
+            }
+
+            TempData["SuccessMessage"] =
+                "You have successfully enrolled in the event!";
+
+            return RedirectToAction("Events");
         }
     }
 }

@@ -12,6 +12,19 @@
             Discover upcoming running, walking and cycling events.
         </p>
     </div>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
 
     @if (ViewBag.ErrorMessage != null)
     {
@@ -66,6 +79,12 @@
                                 <strong>Distance:</strong>
                                 @eventItem.Distance km
                             </p>
+                            <a asp-controller="Participant"
+                               asp-action="Enrol"
+                               asp-route-id="@eventItem.EventID"
+                               class="btn btn-primary w-100 mt-3">
+                                Enrol Now
+                            </a>
 
                         </div>
 

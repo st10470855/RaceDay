@@ -1,0 +1,92 @@
+﻿@model MVC.ViewModels.CreateEnrolmentViewModel
+
+@{
+    ViewData["Title"] = "Enrol in Event";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+
+            <div class="card shadow border-0">
+                <div class="card-body p-4 p-md-5">
+
+                    <h1 class="fw-bold text-primary mb-3">
+                        Enrol in Event
+                    </h1>
+
+                    <p class="text-muted">
+                        You are enrolling in:
+                    </p>
+
+                    <h4 class="mb-4">@Model.EventName</h4>
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3"></div>
+
+                    @if (Model.Categories == null ||
+                                        !Model.Categories.Any())
+                    {
+                        <div class="alert alert-warning">
+                            No categories are available for this event.
+                            Please contact the event organiser.
+                        </div>
+                    }
+                    else
+                    {
+                        <form asp-controller="Participant"
+                              asp-action="Enrol"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   asp-for="EventID" />
+
+                            <input type="hidden"
+                                   asp-for="EventName" />
+
+                            <label asp-for="CategoryID"
+                                   class="form-label fw-bold">
+                                Select your event category
+                            </label>
+
+                            <select asp-for="CategoryID"
+                                    class="form-select mb-3">
+
+                                <option value="0">
+                                    Choose a category
+                                </option>
+
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <option value="@category.CategoryID">
+                                        @category.CategoryName
+                                    </option>
+                                }
+
+                            </select>
+
+                            <span asp-validation-for="CategoryID"
+                                  class="text-danger"></span>
+
+                            <button type="submit"
+                                    class="btn btn-primary w-100 mt-3">
+                                Confirm Enrolment
+                            </button>
+
+                        </form>
+                    }
+
+                    <a asp-controller="Participant"
+                       asp-action="Events"
+                       class="btn btn-outline-secondary w-100 mt-3">
+                        Back to Events
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
